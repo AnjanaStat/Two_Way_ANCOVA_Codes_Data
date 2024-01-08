@@ -1,0 +1,278 @@
+rm(list=ls())
+install.packages("Iso")
+install.packages("foreach")
+install.packages("doParallel")
+library(Iso)
+library(foreach)
+library(doParallel)
+LRT_a5_b3<-function(n11,n12,n13,n21,n22,n23,n31,n32,n33,n41,n42,n43,n51,n52,n53,m,a1,a2,a3,a4,a5,
+                    b1,b2,b3,p,v11,v12,v13,v21,v22,v23,v31,v32,v33,v41,v42,v43,v51,v52,v53){
+  cl<-makeCluster(4)
+  registerDoParallel(cl)
+  S<-1000
+  #start_time <- Sys.time()
+  count_vec<-foreach(s=1:S, .combine=rbind)%dopar%{
+    fun1<-function(n11,n12,n13,n21,n22,n23,n31,n32,n33,n41,n42,n43,n51,n52,n53,m,a1,a2,a3,a4,a5,
+                   b1,b2,b3,p,v11,v12,v13,v21,v22,v23,v31,v32,v33,v41,v42,v43,v51,v52,v53)
+    {
+      X11=rnorm(n11,1,1);X12=rnorm(n12,2,1);X13=rnorm(n13,3,1)
+      X21=rnorm(n21,1,1);X22=rnorm(n22,2,1);X23=rnorm(n23,3,1)
+      X31=rnorm(n31,1,1);X32=rnorm(n32,2,1);X33=rnorm(n33,3,1)
+      X41=rnorm(n41,1,1);X42=rnorm(n42,2,1);X43=rnorm(n43,3,1)
+      X51=rnorm(n51,1,1);X52=rnorm(n52,2,1);X53=rnorm(n53,3,1)
+      mu11=m+a1+b1+p*X11;mu12=m+a1+b2+p*X12;mu13=m+a1+b3+p*X13
+      mu21=m+a2+b1+p*X21;mu22=m+a2+b2+p*X22;mu23=m+a2+b3+p*X23
+      mu31=m+a3+b1+p*X31;mu32=m+a3+b2+p*X32;mu33=m+a3+b3+p*X33
+      mu41=m+a4+b1+p*X41;mu42=m+a4+b2+p*X42;mu43=m+a4+b3+p*X43
+      mu51=m+a5+b1+p*X51;mu52=m+a5+b2+p*X52;mu53=m+a5+b3+p*X53
+      Y11=rnorm(n11,mu11,sqrt(v11));Y12=rnorm(n12,mu12,sqrt(v12));Y13=rnorm(n13,mu13,sqrt(v13))
+      Y21=rnorm(n21,mu21,sqrt(v21));Y22=rnorm(n22,mu22,sqrt(v22));Y23=rnorm(n23,mu23,sqrt(v23))
+      Y31=rnorm(n31,mu31,sqrt(v31));Y32=rnorm(n32,mu32,sqrt(v32));Y33=rnorm(n33,mu33,sqrt(v33))
+      Y41=rnorm(n41,mu41,sqrt(v41));Y42=rnorm(n42,mu42,sqrt(v42));Y43=rnorm(n43,mu43,sqrt(v43))
+      Y51=rnorm(n51,mu51,sqrt(v51));Y52=rnorm(n52,mu52,sqrt(v52));Y53=rnorm(n53,mu53,sqrt(v53))
+      y11=mean(Y11);y12=mean(Y12);y13=mean(Y13)
+      y21=mean(Y21);y22=mean(Y22);y23=mean(Y23)
+      y31=mean(Y31);y32=mean(Y32);y33=mean(Y33)
+      y41=mean(Y41);y42=mean(Y42);y43=mean(Y43)
+      y51=mean(Y51);y52=mean(Y52);y53=mean(Y53)
+      y.1=(y11+y21+y31+y41+y51)/5;y.2=(y12+y22+y32+y42+y52)/5;y.3=(y13+y23+y33+y43+y53)/5
+      y1.=(y11+y12+y13)/3;y2.=(y21+y22+y23)/3;y3.=(y31+y32+y33)/3;y4.=(y41+y42+y43)/3
+      y5.=(y51+y52+y53)/3
+      y=(y11+y12+y13+y21+y22+y23+y31+y32+y33+y41+y42+y43+y51+y52+y53)/15
+      x11=mean(X11);x12=mean(X12);x13=mean(X13)
+      x21=mean(X21);x22=mean(X22);x23=mean(X23)
+      x31=mean(X31);x32=mean(X32);x33=mean(X33)
+      x41=mean(X41);x42=mean(X42);x43=mean(X43)
+      x51=mean(X51);x52=mean(X52);x53=mean(X53)
+      x.1=(x11+x21+x31+x41+x51)/5;x.2=(x12+x22+x32+x42+x52)/5;x.3=(x13+x23+x33+x43+x53)/5
+      x1.=(x11+x12+x13)/3;x2.=(x21+x22+x23)/3;x3.=(x31+x32+x33)/3;x4.=(x41+x42+x43)/3
+      x5.=(x51+x52+x53)/3
+      x=(x11+x12+x13+x21+x22+x23+x31+x32+x33+x41+x42+x43+x51+x52+x53)/15
+      n.1=(n11+n21+n31+n41+n51);n.2=(n12+n22+n32+n42+n52);n.3=(n13+n23+n33+n43+n53)
+      yw.1=(n11*y11+n21*y21+n31*y31+n41*y41+n51*y51)/n.1
+      yw.2=(n12*y12+n22*y22+n32*y32+n42*y42+n52*y52)/n.2
+      yw.3=(n13*y13+n23*y23+n33*y33+n43*y43+n53*y53)/n.3
+      xw.1=(n11*x11+n21*x21+n31*x31+n41*x41+n51*x51)/n.1
+      xw.2=(n12*x12+n22*x22+n32*x32+n42*x42+n52*x52)/n.2
+      xw.3=(n13*x13+n23*x23+n33*x33+n43*x43+n53*x53)/n.3
+      nu0n=sum((Y11-yw.1)*(X11-xw.1))+sum((Y12-yw.2)*(X12-xw.2))+sum((Y13-yw.3)*(X13-xw.3))+
+        sum((Y21-yw.1)*(X21-xw.1))+sum((Y22-yw.2)*(X22-xw.2))+sum((Y23-yw.3)*(X23-xw.3))+
+        sum((Y31-yw.1)*(X31-xw.1))+sum((Y32-yw.2)*(X32-xw.2))+sum((Y33-yw.3)*(X33-xw.3))+
+        sum((Y41-yw.1)*(X41-xw.1))+sum((Y42-yw.2)*(X42-xw.2))+sum((Y43-yw.3)*(X43-xw.3))+
+        sum((Y51-yw.1)*(X51-xw.1))+sum((Y52-yw.2)*(X52-xw.2))+sum((Y53-yw.3)*(X53-xw.3))
+      nu0d=sum((X11-xw.1)^2)+sum((X12-xw.2)^2)+sum((X13-xw.3)^2)+
+        sum((X21-xw.1)^2)+sum((X22-xw.2)^2)+sum((X23-xw.3)^2)+
+        sum((X31-xw.1)^2)+sum((X32-xw.2)^2)+sum((X33-xw.3)^2)+
+        sum((X41-xw.1)^2)+sum((X42-xw.2)^2)+sum((X43-xw.3)^2)+
+        sum((X51-xw.1)^2)+sum((X52-xw.2)^2)+sum((X53-xw.3)^2)
+      nu0=nu0n/nu0d
+      b01=yw.1-nu0*xw.1;b02=yw.2-nu0*xw.2;b03=yw.3-nu0*xw.3
+      b0=c(b01,b02,b03)
+      s11=(sum((Y11-y11)^2)-(sum((Y11-y11)*(X11-x11))^2)/sum((X11-x11)^2))/(n11-2)
+      s12=(sum((Y12-y12)^2)-(sum((Y12-y12)*(X12-x12))^2)/sum((X12-x12)^2))/(n12-2)
+      s13=(sum((Y13-y13)^2)-(sum((Y13-y13)*(X13-x13))^2)/sum((X13-x13)^2))/(n13-2)
+      s21=(sum((Y21-y21)^2)-(sum((Y21-y21)*(X21-x21))^2)/sum((X21-x21)^2))/(n21-2)
+      s22=(sum((Y22-y22)^2)-(sum((Y22-y22)*(X22-x22))^2)/sum((X22-x22)^2))/(n22-2)
+      s23=(sum((Y23-y23)^2)-(sum((Y23-y23)*(X23-x23))^2)/sum((X23-x23)^2))/(n23-2)
+      s31=(sum((Y31-y31)^2)-(sum((Y31-y31)*(X31-x31))^2)/sum((X31-x31)^2))/(n31-2)
+      s32=(sum((Y32-y32)^2)-(sum((Y32-y32)*(X32-x32))^2)/sum((X32-x32)^2))/(n32-2)
+      s33=(sum((Y33-y33)^2)-(sum((Y33-y33)*(X33-x33))^2)/sum((X33-x33)^2))/(n33-2)
+      s41=(sum((Y41-y41)^2)-(sum((Y41-y41)*(X41-x41))^2)/sum((X41-x41)^2))/(n41-2)
+      s42=(sum((Y42-y42)^2)-(sum((Y42-y42)*(X42-x42))^2)/sum((X42-x42)^2))/(n42-2)
+      s43=(sum((Y43-y43)^2)-(sum((Y43-y43)*(X43-x43))^2)/sum((X43-x43)^2))/(n43-2)
+      s51=(sum((Y51-y51)^2)-(sum((Y51-y51)*(X51-x51))^2)/sum((X51-x51)^2))/(n51-2)
+      s52=(sum((Y52-y52)^2)-(sum((Y52-y52)*(X52-x52))^2)/sum((X52-x52)^2))/(n52-2)
+      s53=(sum((Y53-y53)^2)-(sum((Y53-y53)*(X53-x53))^2)/sum((X53-x53)^2))/(n53-2)
+      s011=s11;s012=s12;s013=s13;s021=s21;s022=s22;s023=s23;s031=s31;s032=s32;s033=s33
+      s041=s41;s042=s42;s043=s43;s051=s51;s052=s52;s053=s53
+      nu=nu0
+      repeat
+      {
+        u11=n11/s011;u12=n12/s012;u13=n13/s013;u21=n21/s021;u22=n22/s022;u23=n23/s023
+        u31=n31/s031;u32=n32/s032;u33=n33/s033;u41=n41/s041;u42=n42/s042;u43=n43/s043
+        u51=n51/s051;u52=n52/s052;u53=n53/s053
+        u.1=u11+u21+u31+u41+u51;u.2=u12+u22+u32+u42+u52;u.3=u13+u23+u33+u43+u53
+        y.1n=(u11*y11+u21*y21+u31*y31+u41*y41+u51*y51)/u.1
+        y.2n=(u12*y12+u22*y22+u32*y32+u42*y42+u52*y52)/u.2
+        y.3n=(u13*y13+u23*y23+u33*y33+u43*y43+u53*y53)/u.3
+        x.1n=(u11*x11+u21*x21+u31*x31+u41*x41+u51*x51)/u.1
+        x.2n=(u12*x12+u22*x22+u32*x32+u42*x42+u52*x52)/u.2
+        x.3n=(u13*x13+u23*x23+u33*x33+u43*x43+u53*x53)/u.3
+        bn1=y.1n-nu*x.1n;bn2=y.2n-nu*x.2n;bn3=y.3n-nu*x.3n
+        bn=c(bn1,bn2,bn3)
+        nunn=sum((Y11-bn1)*X11)/s011+sum((Y12-bn2)*X12)/s012+sum((Y13-bn3)*X13)/s013+
+          sum((Y21-bn1)*X21)/s021+(sum((Y22-bn2)*X22))/s022+sum((Y23-bn3)*X23)/s023+
+          sum((Y31-bn1)*X31)/s031+sum((Y32-bn2)*X32)/s032+sum((Y33-bn3)*X33)/s033+
+          sum((Y41-bn1)*X41)/s041+sum((Y42-bn2)*X42)/s042+sum((Y43-bn3)*X43)/s043+
+          sum((Y51-bn1)*X51)/s051+sum((Y52-bn2)*X52)/s052+sum((Y53-bn3)*X53)/s053
+        nund=sum(X11^2)/s011+sum(X12^2)/s012+sum(X13^2)/s013+
+          sum(X21^2)/s021+sum(X22^2)/s022+sum(X23^2)/s023+
+          sum(X31^2)/s031+sum(X32^2)/s032+sum(X33^2)/s033+
+          sum(X41^2)/s041+sum(X42^2)/s042+sum(X43^2)/s043+
+          sum(X51^2)/s051+sum(X52^2)/s052+sum(X53^2)/s053
+        nun=nunn/nund
+        sn11=sum((Y11-bn1-nun*X11)^2)/n11;sn12=sum((Y12-bn2-nun*X12)^2)/n12
+        sn13=sum((Y13-bn3-nun*X13)^2)/n13;sn21=sum((Y21-bn1-nun*X21)^2)/n21
+        sn22=sum((Y22-bn2-nun*X22)^2)/n22;sn23=sum((Y23-bn3-nun*X23)^2)/n23
+        sn31=sum((Y31-bn1-nun*X31)^2)/n31;sn32=sum((Y32-bn2-nun*X32)^2)/n32
+        sn33=sum((Y33-bn3-nun*X33)^2)/n33
+        sn41=sum((Y41-bn1-nun*X41)^2)/n41;sn42=sum((Y42-bn2-nun*X42)^2)/n42
+        sn43=sum((Y43-bn3-nun*X43)^2)/n43
+        sn51=sum((Y51-bn1-nun*X51)^2)/n51;sn52=sum((Y52-bn2-nun*X52)^2)/n52
+        sn53=sum((Y53-bn3-nun*X53)^2)/n53
+        d1=abs(nu-nun);d2=max(abs(b0-bn))
+        if(d1<=0.00001 & d2<=0.00001)
+        {
+          break
+        }
+        b0=bn;nu=nun
+        s011=sn11;s012=sn12;s013=sn13;s021=sn21;s022=sn22;s023=sn23
+        s031=sn31;s032=sn32;s033=sn33;s041=sn41;s042=sn42;s043=sn43
+        s051=sn51;s052=sn52;s053=sn53
+      }
+      Nu0n=sum((Y11-y1.-y.1+y)*(X11-x1.-x.1+x))+sum((Y12-y1.-y.2+y)*(X12-x1.-x.2+x))+
+        sum((Y13-y1.-y.3+y)*(X13-x1.-x.3+x))+sum((Y21-y2.-y.1+y)*(X21-x2.-x.1+x))+
+        sum((Y22-y2.-y.2+y)*(X22-x2.-x.2+x))+sum((Y23-y2.-y.3+y)*(X23-x2.-x.3+x))+
+        sum((Y31-y3.-y.1+y)*(X31-x3.-x.1+x))+sum((Y32-y3.-y.2+y)*(X32-x3.-x.2+x))+
+        sum((Y33-y3.-y.3+y)*(X33-x3.-x.3+x))+sum((Y41-y4.-y.1+y)*(X41-x4.-x.1+x))+
+        sum((Y42-y4.-y.2+y)*(X42-x4.-x.2+x))+sum((Y43-y4.-y.3+y)*(X43-x4.-x.3+x))+
+        sum((Y51-y5.-y.1+y)*(X51-x5.-x.1+x))+sum((Y52-y5.-y.2+y)*(X52-x5.-x.2+x))+
+        sum((Y53-y5.-y.3+y)*(X53-x5.-x.3+x))
+      Nu0d=sum((X11-x1.-x.1+x)^2)+sum((X12-x1.-x.2+x)^2)+sum((X13-x1.-x.3+x)^2)+sum((X21-x2.-x.1+x)^2)+
+        sum((X22-x2.-x.2+x)^2)+sum((X23-x2.-x.3+x)^2)+sum((X31-x3.-x.1+x)^2)+sum((X32-x3.-x.2+x)^2)+
+        sum((X33-x3.-x.3+x)^2)+sum((X41-x4.-x.1+x)^2)+sum((X42-x4.-x.2+x)^2)+sum((X43-x4.-x.3+x)^2)+
+        sum((X51-x5.-x.1+x)^2)+sum((X52-x5.-x.2+x)^2)+sum((X53-x5.-x.3+x)^2)
+      Nu0=Nu0n/Nu0d
+      Nu=Nu0
+      a01=y1.-Nu0*x1.;a02=y2.-Nu0*x2.;a03=y3.-Nu0*x3.;a04=y4.-Nu0*x4.;a05=y5.-Nu0*x5.
+      A0=c(a01,a02,a03,a04,a05)
+      B01=y.1-y-Nu0*(x.1-x);B02=y.2-y-Nu0*(x.2-x);B03=y.3-y-Nu0*(x.3-x)
+      B0=c(B01,B02,B03)
+      S11=s11;S12=s12;S13=s13;S21=s21;S22=s22;S23=s23;S31=s31;S32=s32;S33=s33;S41=s41;S42=s42;S43=s43
+      S51=s51;S52=s52;S53=s53
+      repeat
+      {
+        U11=n11/S11;U12=n12/S12;U13=n13/S13;U21=n21/S21;U22=n22/S22;U23=n23/S23
+        U31=n31/S31;U32=n32/S32;U33=n33/S33;U41=n41/S41;U42=n42/S42;U43=n43/S43
+        U51=n51/S51;U52=n52/S52;U53=n53/S53
+        W1=(U11+U12+U13);W2=(U21+U22+U23);W3=(U31+U32+U33);W4=(U41+U42+U43)
+        W5=(U51+U52+U53)
+        Yn1=(U11*(y11-B0[1]-Nu*x11)+U12*(y12-B0[2]-Nu*x12)+U13*(y13-B0[3]-Nu*x13))/W1
+        Yn2=(U21*(y21-B0[1]-Nu*x21)+U22*(y22-B0[2]-Nu*x22)+U23*(y23-B0[3]-Nu*x23))/W2
+        Yn3=(U31*(y31-B0[1]-Nu*x31)+U32*(y32-B0[2]-Nu*x32)+U33*(y33-B0[3]-Nu*x33))/W3
+        Yn4=(U41*(y41-B0[1]-Nu*x41)+U42*(y42-B0[2]-Nu*x42)+U43*(y43-B0[3]-Nu*x43))/W4
+        Yn5=(U51*(y51-B0[1]-Nu*x51)+U52*(y52-B0[2]-Nu*x52)+U53*(y53-B0[3]-Nu*x53))/W5
+        Yn=c(Yn1,Yn2,Yn3,Yn4,Yn5)
+        W=c(W1,W2,W3,W4,W5)
+        An=Iso::pava(Yn,W)
+        Q=U13*(y13-An[1]-Nu*x13)+U23*(y23-An[2]-Nu*x23)+U33*(y33-An[3]-Nu*x33)+
+          U43*(y43-An[4]-Nu*x43)+U53*(y53-An[5]-Nu*x53)
+        V1n=U11*(y11-An[1]-Nu*x11)+U21*(y21-An[2]-Nu*x21)+U31*(y31-An[3]-Nu*x31)+U41*(y41-An[4]-Nu*x41)+U51*(y51-An[5]-Nu*x51)-Q
+        V2n=U12*(y12-An[1]-Nu*x12)+U22*(y22-An[2]-Nu*x22)+U32*(y32-An[3]-Nu*x32)+U42*(y42-An[4]-Nu*x42)+U52*(y52-An[5]-Nu*x52)-Q
+        w1=(U11+U21+U31+U41+U51);w2=(U12+U22+U32+U42+U52);w3=(U13+U23+U33+U43+U53)
+        w=matrix(c(w1+w3,w3,w3,w2+w3),nrow=2,ncol=2,byrow=TRUE)
+        V=matrix(c(V1n,V2n),nrow=2,ncol=1,byrow=TRUE)
+        B=solve(w)%*%V;Bn3=-(B[1]+B[2])
+        Bn=c(B[1],B[2],Bn3)
+        Nunn=sum((Y11-An[1]-Bn[1])*X11)/S11+sum((Y12-An[1]-Bn[2])*X12)/S12+sum((Y13-An[1]-Bn[3])*X13)/S13+
+          sum((Y21-An[2]-Bn[1])*X21)/S21+sum((Y22-An[2]-Bn[2])*X22)/S22+sum((Y23-An[2]-Bn[3])*X23)/S23+
+          sum((Y31-An[3]-Bn[1])*X31)/S31+sum((Y32-An[3]-Bn[2])*X32)/S32+sum((Y33-An[3]-Bn[3])*X33)/S33+
+          sum((Y41-An[4]-Bn[1])*X41)/S41+sum((Y42-An[4]-Bn[2])*X42)/S42+sum((Y43-An[4]-Bn[3])*X43)/S43+
+          sum((Y51-An[5]-Bn[1])*X51)/S51+sum((Y52-An[5]-Bn[2])*X52)/S52+sum((Y53-An[5]-Bn[3])*X53)/S53
+        Nund=sum(X11^2)/S11+sum(X12^2)/S12+sum(X13^2)/S13+sum(X21^2)/S21+sum(X22^2)/S22+sum(X23^2)/S23+
+          sum(X31^2)/S31+sum(X32^2)/S32+sum(X33^2)/S33+sum(X41^2)/S41+sum(X42^2)/S42+sum(X43^2)/S43+
+          sum(X51^2)/S51+sum(X52^2)/S52+sum(X53^2)/S53
+        Nun=Nunn/Nund
+        Sn11=sum((Y11-An[1]-Bn[1]-Nun*X11)^2)/n11;Sn12=sum((Y12-An[1]-Bn[2]-Nun*X12)^2)/n12
+        Sn13=sum((Y13-An[1]-Bn[3]-Nun*X13)^2)/n13;Sn21=sum((Y21-An[2]-Bn[1]-Nun*X21)^2)/n21
+        Sn22=sum((Y22-An[2]-Bn[2]-Nun*X22)^2)/n22;Sn23=sum((Y23-An[2]-Bn[3]-Nun*X23)^2)/n23
+        Sn31=sum((Y31-An[3]-Bn[1]-Nun*X31)^2)/n31;Sn32=sum((Y32-An[3]-Bn[2]-Nun*X32)^2)/n32
+        Sn33=sum((Y33-An[3]-Bn[3]-Nun*X33)^2)/n33
+        Sn41=sum((Y41-An[4]-Bn[1]-Nun*X41)^2)/n41;Sn42=sum((Y42-An[4]-Bn[2]-Nun*X42)^2)/n42
+        Sn43=sum((Y43-An[4]-Bn[3]-Nun*X43)^2)/n43
+        Sn51=sum((Y51-An[5]-Bn[1]-Nun*X51)^2)/n51;Sn52=sum((Y52-An[5]-Bn[2]-Nun*X52)^2)/n52
+        Sn53=sum((Y53-An[5]-Bn[3]-Nun*X53)^2)/n53
+        D1=max(abs(B0-Bn));D2=max(abs(An-A0));D3=abs(Nu-Nun)
+        if(D1<=0.00001 & D2<=0.00001 & D3<=0.00001)
+        {
+          break
+        }
+        B0=Bn;A0=An;Nu=Nun
+        S11=Sn11;S12=Sn12;S13=Sn13;S21=Sn21;S22=Sn22;S23=Sn23;S31=Sn31;S32=Sn32;S33=Sn33
+        S41=Sn41;S42=Sn42;S43=Sn43;S51=Sn51;S52=Sn52;S53=Sn53
+      }
+      LR=(Sn11/sn11)^(n11/2)*(Sn12/sn12)^(n12/2)*(Sn13/sn13)^(n13/2)*(Sn21/sn21)^(n21/2)*
+        (Sn22/sn22)^(n22/2)*(Sn23/sn23)^(n23/2)*(Sn31/sn31)^(n31/2)*(Sn32/sn32)^(n32/2)*(Sn33/sn33)^(n33/2)*
+        (Sn41/sn41)^(n41/2)*(Sn42/sn42)^(n42/2)*(Sn43/sn43)^(n43/2)*(Sn51/sn51)^(n51/2)*(Sn52/sn52)^(n52/2)*(Sn53/sn53)^(n53/2)
+      #LR=(S11/s011)^(n11/2)*(S12/s012)^(n12/2)*(S13/s013)^(n13/2)*(S21/s021)^(n21/2)*(S22/s022)^(n22/2)*
+      #  (S23/s023)^(n23/2)*(S31/s031)^(n31/2)*(S32/s032)^(n32/2)*(S33/s033)^(n33/2)
+      value=c(LR,b01,b02,b03,nu0,s11,s12,s13,s21,s22,s23,s31,s32,s33,s41,s42,s43,s51,s52,s53)
+      return(value)
+    }
+    fun2<-function(n11,n12,n13,n21,n22,n23,n31,n32,n33,n41,n42,n43,n51,n52,n53,m,a1,a2,a3,a4,a5,
+                   b1,b2,b3,p,v11,v12,v13,v21,v22,v23,v31,v32,v33,v41,v42,v43,v51,v52,v53)
+    {
+      B<-1000
+      out<-fun1(n11,n12,n13,n21,n22,n23,n31,n32,n33,n41,n42,n43,n51,n52,n53,m,a1,a2,a3,a4,a5,
+                b1,b2,b3,p,v11,v12,v13,v21,v22,v23,v31,v32,v33,v41,v42,v43,v51,v52,v53)
+      LR=out[1]
+      b01=out[2];b02=out[3];b03=out[4];nu0=out[5];s11=out[6];s12=out[7];s13=out[8]
+      s21=out[9];s22=out[10];s23=out[11];s31=out[12];s32=out[13];s33=out[14]
+      s41=out[15];s42=out[16];s43=out[17];s51=out[18];s52=out[19];s53=out[20]
+      X<-rep(NA,B)
+      for(b in 1:B)
+      {
+        output<-fun1(n11,n12,n13,n21,n22,n23,n31,n32,n33,n41,n42,n43,n51,n52,n53,0,0,0,0,0,0,
+                     b01,b02,b03,nu0,s11,s12,s13,s21,s22,s23,s31,s32,s33,s41,s42,s43,s51,s52,s53)
+        X[b]<-output[1]
+      }
+      y<-sort(X,decreasing=FALSE)
+      c<-y[50]
+      rslt=c(LR,c)
+      return(rslt)
+    }
+    fun3<-function(n11,n12,n13,n21,n22,n23,n31,n32,n33,n41,n42,n43,n51,n52,n53,m,a1,a2,a3,a4,a5,
+                   b1,b2,b3,p,v11,v12,v13,v21,v22,v23,v31,v32,v33,v41,v42,v43,v51,v52,v53)
+    {
+      out<-fun2(n11,n12,n13,n21,n22,n23,n31,n32,n33,n41,n42,n43,n51,n52,n53,m,a1,a2,a3,a4,a5,
+                b1,b2,b3,p,v11,v12,v13,v21,v22,v23,v31,v32,v33,v41,v42,v43,v51,v52,v53)
+      LR=out[1];crit=out[2]
+      count=0
+      if(LR<crit)
+      {
+        count=count+1
+      }
+      return(count)
+    }
+    r<-fun3(n11,n12,n13,n21,n22,n23,n31,n32,n33,n41,n42,n43,n51,n52,n53,m,a1,a2,a3,a4,a5,
+            b1,b2,b3,p,v11,v12,v13,v21,v22,v23,v31,v32,v33,v41,v42,v43,v51,v52,v53)
+    return(r)
+  }
+  #end_time <- Sys.time()
+  stopCluster(cl)
+  #cat("Parallel execution time:",
+  #    end_time - start_time, "\n")
+  size=mean(count_vec)
+  return(size)
+}
+##Results of Table 9
+##2nd column
+LRT_a5_b3(10,12,14,16,18,20,22,24,10,12,14,16,18,20,22,2,0,0,0,0,0,-2,1,1,4,16,8,4,16,8,4,16,8,4,16,8,4,16,8,4)
+LRT_a5_b3(10,12,14,16,18,20,22,24,10,12,14,16,18,20,22,2,0,0,0,0,0,-2,1,1,4,6,4,2,6,4,2,6,4,2,6,4,2,6,4,2)
+LRT_a5_b3(10,12,14,16,18,20,22,24,10,12,14,16,18,20,22,2,0,0,0,0,0,-2,1,1,4,0.1,0.2,0.3,0.4,0.5,0.6,0.8,0.9,1,1.1,1.2,1.3,1.4,1.5,1.6)
+LRT_a5_b3(10,12,14,16,18,20,22,24,10,12,14,16,18,20,22,2,0,0,0,0,0,-2,1,1,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4)
+##3rd column
+LRT_a5_b3(7,8,9,5,6,7,5,6,5,8,9,10,8,9,10,2,0,0,0,0,0,-2,1,1,4,16,8,4,16,8,4,16,8,4,16,8,4,16,8,4)
+LRT_a5_b3(7,8,9,5,6,7,5,6,5,8,9,10,8,9,10,2,0,0,0,0,0,-2,1,1,4,6,4,2,6,4,2,6,4,2,6,4,2,6,4,2)
+LRT_a5_b3(7,8,9,5,6,7,5,6,5,8,9,10,8,9,10,2,0,0,0,0,0,-2,1,1,4,0.1,0.2,0.3,0.4,0.5,0.6,0.8,0.9,1,1.1,1.2,1.3,1.4,1.5,1.6)
+LRT_a5_b3(7,8,9,5,6,7,5,6,5,8,9,10,8,9,10,2,0,0,0,0,0,-2,1,1,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4)
+##4th column
+LRT_a5_b3(7,10,20,7,10,20,7,10,20,7,10,20,7,10,20,2,0,0,0,0,0,-2,1,1,4,16,8,4,16,8,4,16,8,4,16,8,4,16,8,4)
+LRT_a5_b3(7,10,20,7,10,20,7,10,20,7,10,20,7,10,20,2,0,0,0,0,0,-2,1,1,4,6,4,2,6,4,2,6,4,2,6,4,2,6,4,2)
+LRT_a5_b3(7,10,20,7,10,20,7,10,20,7,10,20,7,10,20,2,0,0,0,0,0,-2,1,1,4,0.1,0.2,0.3,0.4,0.5,0.6,0.8,0.9,1,1.1,1.2,1.3,1.4,1.5,1.6)
+LRT_a5_b3(7,10,20,7,10,20,7,10,20,7,10,20,7,10,20,2,0,0,0,0,0,-2,1,1,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4)
+##5th column
+LRT_a5_b3(40,45,50,55,40,45,50,55,40,45,50,55,40,45,50,2,0,0,0,0,0,-2,1,1,4,16,8,4,16,8,4,16,8,4,16,8,4,16,8,4)
+LRT_a5_b3(40,45,50,55,40,45,50,55,40,45,50,55,40,45,50,2,0,0,0,0,0,-2,1,1,4,6,4,2,6,4,2,6,4,2,6,4,2,6,4,2)
+LRT_a5_b3(40,45,50,55,40,45,50,55,40,45,50,55,40,45,50,2,0,0,0,0,0,-2,1,1,4,0.1,0.2,0.3,0.4,0.5,0.6,0.8,0.9,1,1.1,1.2,1.3,1.4,1.5,1.6)
+LRT_a5_b3(40,45,50,55,40,45,50,55,40,45,50,55,40,45,50,2,0,0,0,0,0,-2,1,1,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4)
